@@ -1,6 +1,6 @@
 <h1 align="center">
 
-Welcome to Connect X 👋
+Kaggle: Connect X 👋
 
 </h1>
 <p>
