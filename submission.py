@@ -1,4 +1,4 @@
-from random import random
+import random
 from typing import List
 
 import numpy as np
@@ -38,7 +38,7 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
     if not moves:
         return None, 0
         # raise Exception("No possible move left")
-    best_move = None
+    best_move = random.choice(moves)
     new_depth = depth - 1
     if my_turn:
         # my turn
@@ -53,9 +53,6 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=False)
                 if score > value:
-                    best_move = column_index
-                    value = score
-                elif score == value and random() < 1.0 / len(moves):
                     best_move = column_index
                     value = score
                 # beta pruning
@@ -76,9 +73,6 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=True)
                 if score < value:
-                    best_move = column_index
-                    value = score
-                elif score == value and random() < 1.0 / len(moves):
                     best_move = column_index
                     value = score
                 # alpha prunning
@@ -210,9 +204,9 @@ def act(observation, configuration):
                             configuration=configuration)
     max_depth = 12
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
-    print("-------------------------------------------------------------------------")
-    print(game.board)
-    print()
-    print(f'{step}) Move:{move} by {game.mark}')
+    # print("-------------------------------------------------------------------------")
+    # print(game.board)
+    # print()
+    # print(f'{step}) Move:{move} Value:{value} by {game.mark}')
 
     return move
