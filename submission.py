@@ -22,7 +22,7 @@ def is_subsequence(a: List, b: List):
 def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my_turn=True):
     """Implementation of the minimax algorithm.
     Args:
-        player (CustomPlayer): This is the instantiation of CustomPlayer()
+        mark (CustomPlayer): This is the instantiation of CustomPlayer()
             that represents your agent. It is used to call anything you
             need from the CustomPlayer class (the utility() method, for example,
             or any class variables that belong to CustomPlayer()).
@@ -46,10 +46,10 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
         for column_index in moves:
             won, new_game = game.forecast_move(column_index)
             if won:
-                return column_index, new_game.score(game.player)
+                return column_index, new_game.score(game.mark)
             else:
                 if new_depth == 0 or time_left() < 100:
-                    score = new_game.score(game.player)
+                    score = new_game.score(game.mark)
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=False)
                 if score > value:
@@ -69,10 +69,10 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
         for column_index in moves:
             won, new_game = game.forecast_move(column_index)
             if won:
-                return column_index, -new_game.score(game.player)
+                return column_index, -new_game.score(game.mark)
             else:
                 if new_depth == 0 or time_left() < 100:
-                    score = -new_game.score(game.player)
+                    score = -new_game.score(game.mark)
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=True)
                 if score < value:
@@ -141,7 +141,7 @@ def count_windows(grid, num_discs, piece, config):
     return num_windows
 
 
-def get_heuristic(grid, col, mark, config):
+def get_heuristic(grid, mark, config):
     A = 1000000
     B = 100
     C = 1
@@ -153,97 +153,51 @@ def get_heuristic(grid, col, mark, config):
     num_twos_opp = count_windows(grid, 2, mark % 2 + 1, config)
     num_threes_opp = count_windows(grid, 3, mark % 2 + 1, config)
     score = A * num_fours + B * num_threes + C * num_twos + D * num_twos_opp + E * num_threes_opp
-    return score
+    return num_fours > 0, score
 
 
 class ConnectX:
-    def __init__(self, inarow, board, player):
-        self.inarow = inarow
-        self.player = player
+    def __init__(self, board, mark, config):
         self.board = board
-
-    def _check_move(self, col_index):
-        column = self.board.T[col_index].tolist()
-        if column[0] != 0:
-            # raise Exception(f'Cannot make move is selected column {col_index}')
-            return False, self
-        for row_index, value in enumerate(column):
-            if value == 0 and row_index == (len(column) - 1):
-                board = self.board.copy()
-                board[row_index, col_index] = self.player
-                return True, ConnectX(self.inarow, board, player=1 if self.player == 2 else 2)
-            elif value == 0 and column[row_index + 1] != 0:
-                board = self.board.copy()
-                board[row_index, col_index] = self.player
-                return True, ConnectX(self.inarow, board, player=1 if self.player == 2 else 2)
-
-        return False, self
+        self.config = config
+        self.mark = mark
 
     def moves_available(self):
+        top_row = self.board[0, :]
+        return [column_index for column_index, value in enumerate(top_row) if value == 0]
 
-        columns = self.board.T.tolist()
-        moves = [(index, self._check_move(index)) for index, column in enumerate(columns)]
-        return [column_index for column_index, (possible, game) in moves if possible]
-
-    def forecast_move(self, col_index):
-        possible, new_game = self._check_move(col_index=col_index)
-        if not possible:
+    def forecast_move(self, col):
+        if not col in self.moves_available():
             raise Exception("Impossible move requested")
+        board = drop_piece(self.board, col=col, mark=self.mark, config=self.config)
 
-        return new_game.is_won(self.player), new_game
+        won, _ = get_heuristic(board, self.mark, config=self.config)
+        mark = 1 if self.mark == 2 else 2
+        return won, ConnectX(board, config=self.config, mark=mark)
 
-    def is_won(self, player):
-        win_sequence = [player for _ in range(self.inarow)]
-        rows = self.board.tolist()
-        for row in rows:
-            if is_subsequence(win_sequence, row):
-                return True
-        columns = self.board.T.tolist()
-        for column in columns:
-            if is_subsequence(win_sequence, column):
-                return True
-        diags = [self.board[::-1, :].diagonal(i) for i in range(-self.board.shape[0] + 1, self.board.shape[1])]
-        diags.extend(self.board.diagonal(i) for i in range(self.board.shape[1] - 1, -self.board.shape[0], -1))
-        diagonals = [n.tolist() for n in diags if len(n) >= self.inarow]
-        for diagonal in diagonals:
-            if diagonal:
-                if is_subsequence(win_sequence, diagonal):
-                    return True
-        return False
-
-    def score(self, player):
-        opponent = 2 if player == 1 else 1
-        if self.is_won(player):
-            return 100
-        elif self.is_won(opponent):
-            return -100
-        return 0
+    def score(self, mark):
+        won, score = get_heuristic(self.board, mark=mark, config=self.config)
+        return score
 
     @classmethod
     def fromEnv(cls, observation, configuration):
         num_columns = configuration['columns']
         num_rows = configuration['rows']
+        mark = observation['mark']
         board = np.array(observation['board'])
-        inarow = configuration['inarow']
         board = np.array(board).reshape((num_rows, num_columns))
-        current_player = observation['mark']
-        return ConnectX(inarow=inarow, player=current_player, board=board)
+        return ConnectX(board=board, config=configuration, mark=mark)
+
+    def is_won(self, mark):
+        won, score = get_heuristic(self.board, mark=mark, config=self.config)
+        return won
 
 
 def act(observation, configuration):
-    # board = observation.board
-    # mark = observation.mark
-    # remainingOverageTime = observation.remainingOverageTime
+    # print(configuration)
     step = observation.step
 
     actTimeout = configuration.actTimeout
-    # agentTimeout = configuration.agentTimeout
-    # columns = configuration.columns
-    # episodeSteps = configuration.episodeSteps
-    # inarow = configuration.inarow
-    # rows = configuration.rows
-    # runTimeout = configuration.runTimeout
-    # timeout = configuration.timeout
 
     from datetime import datetime, timedelta
 
@@ -254,6 +208,11 @@ def act(observation, configuration):
 
     game = ConnectX.fromEnv(observation=observation,
                             configuration=configuration)
-    max_depth = 10
+    max_depth = 12
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
+    print("-------------------------------------------------------------------------")
+    print(game.board)
+    print()
+    print(f'{step}) Move:{move} by {game.mark}')
+
     return move
