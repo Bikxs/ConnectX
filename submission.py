@@ -38,18 +38,18 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
     if not moves:
         return None, 0
         # raise Exception("No possible move left")
-    best_move = random.choice(moves)
+    random.shuffle(moves)
     new_depth = depth - 1
+    best_move = random.choice(moves)
     if my_turn:
-        # my turn
         value = -float('inf')
         for column_index in moves:
-            won, new_game = game.forecast_move(column_index)
+            won, _score, new_game = game.forecast_move(column_index)
             if won:
-                return column_index, new_game.score(game.mark)
+                return column_index, _score
             else:
-                if new_depth == 0 or time_left() < 100:
-                    score = new_game.score(game.mark)
+                if new_depth == 0 or time_left() < 200:
+                    score =_score
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=False)
                 if score > value:
@@ -62,14 +62,14 @@ def alphabeta(game, time_left, depth, alpha=float("-inf"), beta=float("inf"), my
         return best_move, value
     else:
         # opponent's turn
-        value = float('inf')
+        value = +float('inf')
         for column_index in moves:
-            won, new_game = game.forecast_move(column_index)
+            won, _score, new_game = game.forecast_move(column_index)
             if won:
-                return column_index, -new_game.score(game.mark)
+                return column_index, -_score
             else:
                 if new_depth == 0 or time_left() < 100:
-                    score = -new_game.score(game.mark)
+                    score = -_score
                 else:
                     _, score = alphabeta(new_game, time_left, new_depth, my_turn=True)
                 if score < value:
@@ -165,9 +165,9 @@ class ConnectX:
             raise Exception("Impossible move requested")
         board = drop_piece(self.board, col=col, mark=self.mark, config=self.config)
 
-        won, _ = get_heuristic(board, self.mark, config=self.config)
+        won, score = get_heuristic(board, self.mark, config=self.config)
         mark = 1 if self.mark == 2 else 2
-        return won, ConnectX(board, config=self.config, mark=mark)
+        return won, score, ConnectX(board, config=self.config, mark=mark)
 
     def score(self, mark):
         won, score = get_heuristic(self.board, mark=mark, config=self.config)
@@ -198,15 +198,15 @@ def act(observation, configuration):
     t0 = datetime.now() + timedelta(seconds=actTimeout)
 
     def time_left():
+        # return 101
         return 1000 * (t0 - datetime.now()).total_seconds()
 
     game = ConnectX.fromEnv(observation=observation,
                             configuration=configuration)
-    max_depth = 12
+    max_depth = 20
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
     # print("-------------------------------------------------------------------------")
     # print(game.board)
     # print()
     # print(f'{step}) Move:{move} Value:{value} by {game.mark}')
-
     return move
