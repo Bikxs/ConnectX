@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from submission import is_subsequence, ConnectX, alphabeta
+from submission_minimax import is_subsequence, ConnectX, alphabeta
 
 
 class Config:
