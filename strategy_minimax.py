@@ -232,7 +232,4 @@ def agent_alpha_beta_timeout(observation, configuration):
     return move
 
 
-def act(observation, configuration):
-    # return agent_alpha_beta_timeout(observation=observation, configuration=configuration)
-    print(observation)
-    return agent_alpha_beta_depth_5(observation=observation, configuration=configuration)
+

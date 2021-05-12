@@ -4,7 +4,7 @@ import time
 from joblib import Parallel, delayed
 from kaggle_environments import evaluate
 
-import submission_minimax
+import strategy_minimax
 
 
 def get_win_percentages(agent_dict_1, agent_dict_2, n_rounds=16):
@@ -39,9 +39,9 @@ def get_win_percentages(agent_dict_1, agent_dict_2, n_rounds=16):
 
 
 if __name__ == '__main__':
-    agents = [{'name': 'AlphaBetaWithTimeout', 'agent': submission_minimax.agent_alpha_beta_timeout},
-              {'name': 'Random', 'agent': submission_minimax.agent_random},
-              {'name': 'AlphaBetaWithDepth5', 'agent': submission_minimax.agent_alpha_beta_depth_5}]
+    agents = [{'name': 'AlphaBetaWithTimeout', 'agent': strategy_minimax.agent_alpha_beta_timeout},
+              {'name': 'Random', 'agent': strategy_minimax.agent_random},
+              {'name': 'AlphaBetaWithDepth5', 'agent': strategy_minimax.agent_alpha_beta_depth_5}]
     for agent in agents:
         get_win_percentages(agent, {'name': 'random', 'agent': 'random'})
         get_win_percentages(agent, {'name': 'negmax', 'agent': 'negmax'})
