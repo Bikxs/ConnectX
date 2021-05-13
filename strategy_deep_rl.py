@@ -1,8 +1,8 @@
 import logging
 import os
 
-logging.disable(logging.WARNING)
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+# logging.disable(logging.WARNING)
+# os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import random
 from datetime import datetime
@@ -295,11 +295,16 @@ def agent_from_policy(policy_name):
 
 
 if __name__ == '__main__':
-    # train("dqn_base_v1",
-    #       vs_agent="random",
-    #       num_iterations=50000,
-    #       checkpoint_to_load=None,
-    #       description="DQN agent trained against a random agent from scratch")
+    from tensorflow.python.client import device_lib
+
+    devices = device_lib.list_local_devices()
+    print(devices)
+
+    train("dqn_base_v1",
+          vs_agent="random",
+          num_iterations=50000,
+          checkpoint_to_load=None,
+          description="DQN agent trained against a random agent from scratch")
     train("dqn_base_v2",
           vs_agent="random",
           num_iterations=50000,
@@ -312,3 +317,10 @@ if __name__ == '__main__':
           learning_rate=1e-5,
           checkpoint_to_load="dqn_base_v2",
           description="DQN agent trained against negamax agent initialized initialized from dqn_base_v2")
+    train("dqn_v_negamax_v2",
+          vs_agent="negamax",
+          num_iterations=1000000,
+          learning_rate=1e-5,
+          checkpoint_to_load="dqn_v_negamax_v1",
+          description="DQN agent trained against negamax agent initialized initialized from dqn_v_negamax_v2")
+

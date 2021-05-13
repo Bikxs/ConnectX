@@ -1,0 +1,7 @@
+jupyter
+kaggle-environments
+numpy
+pandas
+tensorflow
+tf-agents
+tqdm
