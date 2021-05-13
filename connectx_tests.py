@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from strategy_minimax import is_subsequence, ConnectX, alphabeta
+from strategy_minimax import is_subsequence, Game, alphabeta
 
 
 class Config:
@@ -117,8 +117,8 @@ class ConnectXTestCases(unittest.TestCase):
         for index, (board_description, board, won_P1, won_P2, score_P1, score_P2) in enumerate(positions):
             if index != 1:
                 continue
-            game1 = ConnectX(board=board, mark=1, config=config)
-            game2 = ConnectX(board=board, mark=2, config=config)
+            game1 = Game(board=board, mark=1, config=config)
+            game2 = Game(board=board, mark=2, config=config)
             self.assertEqual(game1.is_won(1), won_P1,
                              msg=f'{index}) Did P1 win on board: {board_description}')
             self.assertEqual(game2.is_won(2), won_P2,
@@ -146,7 +146,7 @@ class ConnectXTestCases(unittest.TestCase):
                           [1, 1, 2, 2, 1, 1, 0],
                           [2, 2, 2, 1, 1, 2, 0],
                           [1, 1, 2, 2, 1, 1, 2]])
-        game = ConnectX(board=board, mark=1, config=config)
+        game = Game(board=board, mark=1, config=config)
 
         move, score = alphabeta(game, time_left=lambda: 100, depth=3)
         print(move)
@@ -161,7 +161,7 @@ class ConnectXTestCases(unittest.TestCase):
                           [1, 1, 2, 2, 1, 1, 0],
                           [2, 2, 2, 1, 1, 2, 0],
                           [1, 1, 2, 2, 1, 1, 2]])
-        game = ConnectX(board=board, mark=2, config=config)
+        game = Game(board=board, mark=2, config=config)
 
         move, score = alphabeta(game, time_left=lambda: 100, depth=3)
         self.assertEqual(5, move, msg="P2 Move should be 5")
@@ -174,7 +174,7 @@ class ConnectXTestCases(unittest.TestCase):
                           [1, 0, 0, 0, 0, 0, 1],
                           [2, 2, 0, 0, 2, 2, 2],
                           [1, 1, 0, 2, 1, 1, 2]])
-        game = ConnectX(board=board, mark=2, config=config)
+        game = Game(board=board, mark=2, config=config)
         move, score = alphabeta(game, time_left=lambda: 100, depth=3)
         self.assertEqual(3, move, msg="P2 Move should be 3")
         # self.assertEqual(100, score, msg="P2 Score should be 100")

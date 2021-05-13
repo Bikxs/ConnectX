@@ -151,7 +151,7 @@ def get_heuristic(grid, mark, config):
     return num_fours > 0, score
 
 
-class ConnectX:
+class Game:
     def __init__(self, board, mark, config):
         self.board = board
         self.config = config
@@ -168,7 +168,7 @@ class ConnectX:
 
         won, score = get_heuristic(board, self.mark, config=self.config)
         mark = 1 if self.mark == 2 else 2
-        return won, score, ConnectX(board, config=self.config, mark=mark)
+        return won, score, Game(board, config=self.config, mark=mark)
 
     def score(self, mark):
         won, score = get_heuristic(self.board, mark=mark, config=self.config)
@@ -181,7 +181,7 @@ class ConnectX:
         mark = observation['mark']
         board = np.array(observation['board'])
         board = np.array(board).reshape((num_rows, num_columns))
-        return ConnectX(board=board, config=configuration, mark=mark)
+        return Game(board=board, config=configuration, mark=mark)
 
     def is_won(self, mark):
         won, score = get_heuristic(self.board, mark=mark, config=self.config)
@@ -196,8 +196,8 @@ def agent_alpha_beta_depth_6(observation, configuration):
     def time_left():
         return 101
 
-    game = ConnectX.fromEnv(observation=observation,
-                            configuration=configuration)
+    game = Game.fromEnv(observation=observation,
+                        configuration=configuration)
     max_depth = 6
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
     return move
@@ -207,8 +207,8 @@ def agent_alpha_beta_depth_5(observation, configuration):
     def time_left():
         return 101
 
-    game = ConnectX.fromEnv(observation=observation,
-                            configuration=configuration)
+    game = Game.fromEnv(observation=observation,
+                        configuration=configuration)
     max_depth = 5
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
     return move
@@ -225,8 +225,8 @@ def agent_alpha_beta_timeout(observation, configuration):
         # return 101
         return 1000 * (t0 - datetime.now()).total_seconds()
 
-    game = ConnectX.fromEnv(observation=observation,
-                            configuration=configuration)
+    game = Game.fromEnv(observation=observation,
+                        configuration=configuration)
     max_depth = 20
     move, value = alphabeta(game, time_left=time_left, depth=max_depth)
     return move
