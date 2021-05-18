@@ -496,3 +496,9 @@ if __name__ == '__main__':
           learning_rate=1e-5,
           checkpoint_to_load="dqn_v_negamax_v1",
           description="DQN agent trained against negamax agent initialized initialized from dqn_v_negamax_v2")
+    train("dqn_v_negamax_v3",
+          vs_agent="negamax",
+          num_iterations=300000,
+          learning_rate=1e-6,
+          checkpoint_to_load="dqn_v_negamax_v2",
+          description="DQN agent trained against negamax agent initialized initialized from dqn_v_negamax_v2")
