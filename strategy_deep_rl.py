@@ -322,7 +322,7 @@ def train(agent_name, vs_agent, description, checkpoint_to_load=None, num_iterat
         preprocessing_combiner=preprocessing_combiner,
         conv_layer_params=None,
         fc_layer_params=fc_layer_params,
-        dropout_layer_params=dropout_layer_params,
+        dropout_layer_params=None, #dropout_layer_params,
         activation_fn=tf.keras.activations.relu,
         # kernel_initializer=tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in',distribution='truncated_normal'),
         batch_squash=True,

@@ -1,0 +1,7 @@
+name: dqn_base_v2
+description: DQN agent trained against a random agent from initialized from dqn_base_v1
+loaded from checkpoint: dqn_base_v1
+training started: 2021-05-18 14:21:33.387693
+training completed: 2021-05-18 15:00:36.919231
+start step number: 50000
+end step number: 100000

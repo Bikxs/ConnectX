@@ -1,0 +1,7 @@
+name: dqn_v_negamax_v3
+description: DQN agent trained against negamax agent initialized initialized from dqn_v_negamax_v2
+loaded from checkpoint: dqn_v_negamax_v2
+training started: 2021-05-19 03:43:34.690239
+training completed: 2021-05-19 20:17:55.028539
+start step number: 300000
+end step number: 600000
